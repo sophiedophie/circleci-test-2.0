@@ -1,12 +1,24 @@
-version: 2
+version: 2.1
+
+# What I want to be able to do is
+# call \"C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Enterprise\\Common7\\Tools\\VsDevCmd.bat\" -host_arch=amd64 -arch=amd64
+# Which works fine on azure pipelines and over ssh
+
+orbs:
+  win: circleci/windows@1.0.0
+
 jobs:
-  build:
-    machine:
-      image: windows-server-2019-vs2019:201908-06
+  example-one:
+    executor:
+      name: win/vs2019
+      shell: powershell.exe
     steps:
-    - run: choco install -y dotnet3.5 --version=3.5.20160716
+      - run:
+          name: example
+          command: Start-Process powershell -verb runas -ArgumentList \"-file test.ps1\"
+
 workflows:
   version: 2
-  workflow:
+  build_and_test_all:
     jobs:
-    - build
+      - example-one
