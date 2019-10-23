@@ -14,8 +14,8 @@ jobs:
       shell: powershell.exe
     steps:
       - run:
-          name: example
-          command: Start-Process powershell -verb runas -ArgumentList \"-file test.ps1\"
+          name: show envs
+          command: gci env:* | sort-object name
 
 workflows:
   version: 2
