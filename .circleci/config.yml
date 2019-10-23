@@ -43,6 +43,9 @@ jobs:
       - run:
           command: brew install Gradle
   show_ubuntu_whois:
+    branches:
+      only:
+        - /develop-/i
     machine:
       docker_layer_caching: true
     environment:
