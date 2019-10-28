@@ -14,9 +14,6 @@ jobs:
       shell: powershell.exe
     steps:
       - run:
-          name: install powershell 6
-          command: iex "& { $(irm https://aka.ms/install-powershell.ps1) } -UseMSI -AddToPath"
-      - run:
           name: show versions
           command: |
             dotnet --info
