@@ -14,8 +14,10 @@ jobs:
       shell: powershell.exe
     steps:
       - run:
-          name: show envs
-          command: gci env:* | sort-object name
+          name: show versions
+          command: |
+            dotnet --info
+            $PSVersionTable
 
 workflows:
   version: 2
