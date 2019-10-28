@@ -1,33 +1,28 @@
 version: 2.1
-executors:
-  node-executor:
-    docker:
-      - image: circleci/node:11.1.0
+# What I want to be able to do is
+# call \"C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Enterprise\\Common7\\Tools\\VsDevCmd.bat\" -host_arch=amd64 -arch=amd64
+# Which works fine on azure pipelines and over ssh
+
+orbs:
+  win: circleci/windows@1.0.0
+
 jobs:
-  step1_foo:
-    executor: node-executor
+  example-one:
+    executor:
+      name: win/vs2019
+      shell: powershell.exe
     steps:
-      - checkout
-      - run: echo 'step1_foo'
-  step2_foo:
-    executor: node-executor
-    steps:
-      - checkout
-      - run: echo 'step2_foo'
-  step3_foo:
-    executor: node-executor
-    steps:
-      - checkout
-      - run: echo 'step3_foo'
+      - run:
+          name: install powershell 6
+          command: iex "& { $(irm https://aka.ms/install-powershell.ps1) } -UseMSI -AddToPath"
+      - run:
+          name: show versions
+          command: |
+            dotnet --info
+            $PSVersionTable
+
 workflows:
   version: 2
-  "See the orders":
+  build_and_test_all:
     jobs:
-      - step1_foo
-      - step2_foo:
-          requires:
-            - step1_foo
-      - step3_foo:
-          requires:
-            - step1_foo
-            - step2_foo
+      - example-one
