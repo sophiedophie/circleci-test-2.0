@@ -11,7 +11,7 @@ jobs:
           command: ls
       - persist_to_workspace:
           root: ~/config
-          path: .
+          path: *
   attachWorkspace:
     docker:
       - image: circleci/node:10
