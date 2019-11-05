@@ -5,9 +5,12 @@ jobs:
       - image: circleci/node:10
     working_directory: ~/config
     steps:
-      - checkout 
+      - checkout
+      - run:
+          name: see the directory
+          command: ls
       - persist_to_workspace:
-          root: .
+          root: ~/config
           path: test
   attachWorkspace:
     docker:
