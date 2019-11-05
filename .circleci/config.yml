@@ -3,11 +3,11 @@ jobs:
   persistWorkspace:
     docker:
       - image: circleci/node:10
-    working_directory: .
+    working_directory: ~/config
     steps:
       - checkout 
       - persist_to_workspace:
-          root: ~/config
+          root: .
           path: test
   attachWorkspace:
     docker:
