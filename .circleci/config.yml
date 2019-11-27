@@ -7,8 +7,7 @@ jobs:
       - checkout
       - run:
           command: |
-            npm install
-            npm run test
+            ./test.sh
 
 workflows:
   version: 2
