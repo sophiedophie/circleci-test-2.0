@@ -5,14 +5,10 @@ jobs:
     - image: circleci/ruby:2.6.4-node-browsers
     steps:
       - checkout
-      - restore_cache:
-          keys:
-            - dependency-cache-{{ checksum "package-lock.json" }}
-      - run: npm install
-      - save_cache: # special step to save the dependency cache
-          key: dependency-cache-{{ checksum "package-lock.json" }}
-          paths:
-            - ./node_modules
+      - run:
+          command: |
+            npm install
+            npm run test
 
 workflows:
   version: 2

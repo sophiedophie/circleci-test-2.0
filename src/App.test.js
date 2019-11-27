@@ -33,7 +33,7 @@ describe('Button functionality', () => {
       fireEvent.click(getByTestId('app-button'));
     }
     const hitValue = getByTestId('hits');
-    expect(hitValue.textContent).toBe('10');
+    expect(hitValue.textContent).toBe('0');
   });
 
 })
