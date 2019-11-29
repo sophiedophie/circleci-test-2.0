@@ -21,7 +21,7 @@ jobs:
           name: install java
           command: |
             java -version
-            if [[ $(java -version) == "" ]]; then
+            if java -version 2>&1 >/dev/null | grep "java version\|openjdk version" ; then
               $(java -version) == ""
               sudo apt-get update && sudo apt install openjdk-8-jdk
             else
