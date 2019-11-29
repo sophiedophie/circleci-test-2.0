@@ -11,12 +11,13 @@ jobs:
       #     docker_layer_caching: true
       - run:
           command: |
-            if [[ $(java -version) == "" ]]; then
+            java --version
+            if [[ $(java --version) == "" ]]; then
               sudo apt-get update && sudo apt install openjdk-8-jdk
             else
               echo "Java JDK is already installed"
             fi
-            
+
             if [[ $(node -v) == "" ]]; then
               sudo apt install nodejs
             else
