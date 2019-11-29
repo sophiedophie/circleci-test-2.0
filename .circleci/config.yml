@@ -11,3 +11,4 @@ jobs:
           command: |
             uname
             sudo apt-get update && sudo apt-get install default-jdk
+            java --version
