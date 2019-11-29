@@ -1,22 +1,12 @@
 version: 2.0
 jobs:
   build:
-    machine:
-      docker_layer_caching: true
-    # docker:
-    #   - image: circleci/node:8.15.1
+    docker:
+      - image: circleci/node:8.15.1
     steps:
       - checkout
-      # - setup_remote_docker:
-      #     docker_layer_caching: true
-      - run:
-          name: install nodejs
-          command: |
-            if [[ $(node -v) == "" ]]; then
-              sudo apt install nodejs
-            else
-              echo "NodeJS is already installed"
-            fi
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run:
           name: install java
           command: |
