@@ -5,10 +5,9 @@ jobs:
       - image: circleci/node:8.15.1
     steps:
       - checkout
-      # - setup_remote_docker:
-      #     docker_layer_caching: true
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run:
           command: |
             uname
             sudo apt-get update && sudo apt-get install default-jdk
-            java --version
