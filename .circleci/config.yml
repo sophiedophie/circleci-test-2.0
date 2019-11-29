@@ -8,16 +8,16 @@ jobs:
       - run:
           name: install nodejs
           command: |
-            if [[ $(node -v) == "" ]]; then
+            # if [[ $(node -v) == "" ]]; then
               sudo apt install nodejs
-            else
-              echo "NodeJS is already installed"
-            fi
+            # else
+            #   echo "NodeJS is already installed"
+            # fi
       - run:
           name: install java
           command: |
-            if java -version 2>&1 >/dev/null | grep "java version\|openjdk version" ; then
-              echo "Java JDK is already installed"
-            else
+            # if java -version 2>&1 >/dev/null | grep "java version\|openjdk version" ; then
+            #   echo "Java JDK is already installed"
+            # else
               sudo apt-get update && sudo apt install openjdk-8-jdk
-            fi
+            # fi
