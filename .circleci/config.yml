@@ -13,6 +13,10 @@ jobs:
           command: |
             if [[ $(java -version) == "" ]]; then
               sudo apt-get update && sudo apt install openjdk-8-jdk
+            else
+              echo "Java JDK is already installed"
             if [[ $(node -v) == "" ]]; then
               sudo apt install nodejs
+            else
+              echo "NodeJS is already installed"
             fi
