@@ -22,7 +22,6 @@ jobs:
           command: |
             java -version
             if java -version 2>&1 >/dev/null | grep "java version\|openjdk version" ; then
-              $(java -version) == ""
               sudo apt-get update && sudo apt install openjdk-8-jdk
             else
               echo "Java JDK is already installed"
