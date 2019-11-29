@@ -12,11 +12,7 @@ jobs:
       - run:
           command: |
             uname
-            sudo apt-get update
-            sudo apt install nodejs
-            sudo apt install openjdk-8-jdk
-      
-      - run:
-          command: |
-            java -version
-            node -v
+            if [[ $(java -version) == "" ]]; then
+              sudo apt-get update && sudo apt install openjdk-8-jdk
+            if [[ $(node -v) == "" ]]; then
+              sudo apt install nodejs
