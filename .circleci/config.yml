@@ -9,7 +9,7 @@ jobs:
           name: install nodejs
           command: |
             # if [[ $(node -v) == "" ]]; then
-              sudo apt install nodejs
+              sudo apt-get update && sudo apt install nodejs
             # else
             #   echo "NodeJS is already installed"
             # fi
