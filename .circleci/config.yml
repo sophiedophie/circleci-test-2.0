@@ -8,5 +8,7 @@ jobs:
       - run:
           command: |
             sudo apt-get update
+      - run:
+          command: |
             sudo apt-get install python 3.8
             python -V
