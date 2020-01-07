@@ -7,8 +7,10 @@ jobs:
     steps:
       - run:
           command: |
-            sudo apt-get update
+            sudo add-apt-repository ppa:deadsnakes/ppa   
+            sudo apt-get update   
+            sudo apt install python3.8 
+
       - run:
           command: |
-            sudo apt-get install python 3.8
-            python -V
+            python3.8 -V
