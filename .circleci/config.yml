@@ -5,4 +5,4 @@ jobs:
     machine:
       image: ubuntu-1604:201903-01
     steps:
-      - run: echo ${DOCKER_USERNAME}
+      - run: if [[ -z "${DOCKER_LOGIN}" ]]; then echo "$DOCKER_LOGIN not set. Exiting."; exit -1; else echo "Env check OK."; fi
