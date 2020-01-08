@@ -5,11 +5,8 @@ jobs:
     machine:
       image: ubuntu-1604:201903-01
     steps:
-      - run:
-          command: |
-            sudo apt-get update && sudo apt-get install -y apt-transport-https
-            wget -q -O - https://packagecloud.io/circleci/trusty/gpgkey | sudo apt-key add -
-            # curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-            echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
-            sudo apt-get update
-            sudo apt-get install -y kubectl
+      - run: sudo apt-get update && sudo apt-get install -y apt-transport-https
+      - run: curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+      - run: echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+      - run: sudo apt-get update
+      - run: sudo apt-get install -y kubectl
