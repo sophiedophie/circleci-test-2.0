@@ -7,10 +7,8 @@ jobs:
     steps:
       - run:
           command: |
-            sudo add-apt-repository ppa:deadsnakes/ppa   
-            sudo apt-get update   
-            sudo apt install python3.8 
-
-      - run:
-          command: |
-            python3.8 -V
+            sudo apt-get update && sudo apt-get install -y apt-transport-https
+            curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+            echo "deb https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee -a /etc/apt/sources.list.d/kubernetes.list
+            sudo apt-get update
+            sudo apt-get install -y kubectl
