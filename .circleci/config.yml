@@ -5,11 +5,11 @@ jobs:
     machine:
       image: ubuntu-1604:201903-01
     steps:
-      - run: if [[ -z "${DOCKER_USERNAME}" ]]; then echo "$DOCKER_USERNAME not set. Exiting."; exit -1; else echo "Env check OK."; fi
+      - run: if [[ -z "${password}" ]]; then echo "$password not set. Exiting."; exit -1; else echo "$password Env check OK."; fi
 
 workflows:
   version: 2
   my-workflow:
     jobs:
       - build:
-          context: docker_global
+          context: test-context
