@@ -3,15 +3,8 @@ version: 2.1
 jobs:
   myjob:
     docker:
-      - image: circleci/node:9.6.1
-      - image: circleci/mysql:5.7.28-ram
-    environment:
-      MYSQL_DATABASE: dophie
-      MYSQL_HOST: 127.0.0.1
-      MYSQL_PASSWORD: passsword
-      MYSQL_ROOT_HOST: 127.0.0.1
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_USER: dophie
+      - image: circleci/node:8.11-browsers
+      - image: selenium/standalone-chrome:3.1.0
     steps:
       - checkout
 
