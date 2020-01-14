@@ -5,7 +5,7 @@ jobs:
     machine:
       image: ubuntu-1604:201903-01
     steps:
-      - run: if [[ -z "${password}" ]]; then echo "$password not set. Exiting."; exit -1; else echo "$password Env check OK."; fi
+      - run: if [[ -z "${password}" ]]; then echo "$password not set. Exiting."; exit -1; else echo "$password check OK."; fi
 
 workflows:
   version: 2
