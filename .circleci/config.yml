@@ -1,15 +1,23 @@
 version: 2.1
 
 jobs:
-  build:
-    machine:
-      image: ubuntu-1604:201903-01
+  myjob:
+    docker:
+      - image: circleci/node:9.6.1
+      - image: mysql:5.7.28-ram
+    environment:
+      MYSQL_DATABASE: dophie
+      MYSQL_HOST: 127.0.0.1
+      MYSQL_PASSWORD: passsword
+      MYSQL_ROOT_HOST: 127.0.0.1
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: dophie
     steps:
-      - run: if [[ -z "${password}" ]]; then echo "$password not set. Exiting."; exit -1; else echo "$password check OK."; fi
+      - checkout
 
 workflows:
   version: 2
   my-workflow:
     jobs:
-      - build:
+      - myjob:
           context: test-context
