@@ -3,8 +3,7 @@ version: 2.1
 jobs:
   myjob:
     docker:
-      - image: circleci/node:8.11-browsers
-      - image: selenium/standalone-chrome:latest
+      - image: circleci/php:7.3-stretch
     steps:
       - checkout
 
