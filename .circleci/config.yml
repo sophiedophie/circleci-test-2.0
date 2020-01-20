@@ -3,13 +3,12 @@ version: 2.1
 jobs:
   myjob:
     docker:
-      - image: circleci/php:7.3-stretch
+    - image: circleci/node:10.17.0
     steps:
-      - checkout
-      - run: echo "$CART_EXPIRY $CART_STRING"
-    environment:
-      CART_EXPIRY: 2629746
-      CART_STRING: "2629746"
+    - checkout
+    - run:
+        command:
+          pwd
 
 workflows:
   version: 2
