@@ -2,7 +2,6 @@ version: 2.1
 
 jobs:
   myjob:
-      comcastx1-preprod-deploy:
     docker:
     - image: circleci/node:10.17.0
     steps:
