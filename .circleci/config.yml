@@ -10,7 +10,6 @@ jobs:
         name: Create build folder
         command: |
           mkdir build
-          ls
 workflows:
   version: 2
   my-workflow:
