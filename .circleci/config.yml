@@ -10,6 +10,7 @@ jobs:
         name: Create build folder
         command: |
           npm i
+          ls
 workflows:
   version: 2
   my-workflow:
