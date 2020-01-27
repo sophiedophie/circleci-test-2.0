@@ -1,5 +1,8 @@
 version: 2.1
-
+parameters:
+  sophie:
+    type: string
+    default: ""
 jobs:
   myjob:
     docker:
