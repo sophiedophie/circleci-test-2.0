@@ -1,12 +1,12 @@
 version: 2.1
-parameters:
-  sophie:
-    type: string
-    default: ""
 jobs:
   myjob:
     docker:
     - image: circleci/node:10.17.0
+    parameters:
+      sophie:
+        type: string
+        default: ""
     steps:
     - checkout
     - run:
