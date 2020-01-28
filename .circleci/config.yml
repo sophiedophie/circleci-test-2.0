@@ -7,14 +7,19 @@ jobs:
       sophie:
         type: string
         default: ""
+      dophie:
+        type: boolean
+        default: false
     steps:
     - checkout
-    - run:
-        name: Create build folder
-        command: |
-          npm i
-          ls
-          echo << parameters.sophie >>
+    - when:
+        condition: <<parameters.sophie>> or <<parameters.dophie>>
+        steps:
+          - run: echo "my custom checkout"
+    # - unless:
+    #     condition: <<parameters.custom_checkout>>
+    #     steps:
+    #       - checkout
 workflows:
   version: 2
   my-workflow:
