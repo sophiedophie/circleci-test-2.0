@@ -1,32 +1,27 @@
 version: 2.1
+parameters:
+  SMOKE_TEST:
+    type: boolean
+    default: false
+  DEPLOYMENT:
+    type: boolean
+    default: false
 jobs:
   myjob:
     docker:
     - image: circleci/node:10.17.0
-    parameters:
-      sophie:
-        type: boolean
-        default: false
-      dophie:
-        type: boolean
-        default: false
     steps:
     - checkout
     - when:
-        condition: <<parameters.sophie>> and <<parameters.dophie>>
+        condition: <<pipeline.parameters.SMOKE_TEST>>
         steps:
-          - run: echo "my custom checkout"
+          - run: echo "start smoke test"
     - when:
-        condition: <<parameters.sophie>>
+        condition: <<pipeline.parameters.DEPLOYMENT>>
         steps:
-          - run: "sigh"
-    # - unless:
-    #     condition: <<parameters.custom_checkout>>
-    #     steps:
-    #       - checkout
+          - run: echo "start deployment"
 workflows:
   version: 2
   my-workflow:
     jobs:
-      - myjob:
-          context: aws
+      - myjob
