@@ -5,8 +5,8 @@ jobs:
     - image: circleci/node:10.17.0
     parameters:
       sophie:
-        type: string
-        default: ""
+        type: boolean
+        default: false
       dophie:
         type: boolean
         default: false
