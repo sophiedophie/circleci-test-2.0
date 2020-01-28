@@ -9,17 +9,13 @@ parameters:
 jobs:
   myjob:
     docker:
-    - image: circleci/node:10.17.0
+      - image: circleci/node:10.17.0
     steps:
-    - checkout
-    - when:
-        condition: <<pipeline.parameters.SMOKE_TEST>>
-        steps:
-          - run: echo "start smoke test"
-    - when:
-        condition: <<pipeline.parameters.DEPLOYMENT>>
-        steps:
-          - run: echo "start deployment"
+      - run: echo "<< pipeline.id >>"
+  #   - run:
+  #     name: Check pipeline with API
+  #     command: curl -X GET https://circleci.com/api/v2/pipeline/{pipeline-id}/workflow \
+  # -H 'Accept: application/json' | jq 
 workflows:
   version: 2
   my-workflow:
