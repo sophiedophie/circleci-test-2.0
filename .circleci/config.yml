@@ -13,7 +13,7 @@ jobs:
     steps:
     - checkout
     - when:
-        condition: <<parameters.sophie>> or <<parameters.dophie>>
+        condition: <<parameters.sophie>> and <<parameters.dophie>>
         steps:
           - run: echo "my custom checkout"
     # - unless:
