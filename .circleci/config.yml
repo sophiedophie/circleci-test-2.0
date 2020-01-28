@@ -10,8 +10,10 @@ jobs:
             build_status=$(curl POST --header "Content-Type: application/json" -u '0232224beae7b08beb3b0913907ac58efc79328a': https://circleci.com/api/v2/pipeline/5046386c-f12d-469a-a1e2-5ec6f41f7a4b/workflow | jq '.items[0].status')
             if [ "${build_status}" = "success" ] then
               echo "build trigger!"
+            fi
             else
               echo "don't trigger the build"
+            fi
 workflows:
   version: 2
   my-workflow:
