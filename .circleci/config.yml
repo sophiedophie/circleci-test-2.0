@@ -16,6 +16,10 @@ jobs:
         condition: <<parameters.sophie>> and <<parameters.dophie>>
         steps:
           - run: echo "my custom checkout"
+    - when:
+        condition: <<parameters.sophie>>
+        steps:
+          - run: "sigh"
     # - unless:
     #     condition: <<parameters.custom_checkout>>
     #     steps:
