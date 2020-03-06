@@ -1,14 +1,73 @@
 version: 2.1
+
+myexecutor: &executor
+  docker:
+    - image: circleci/python:3.6.6-stretch-node-browsers
+
 jobs:
-  myjob:
-    docker:
-      - image: circleci/python:3.6.6-stretch-node-browsers
+  deploy_api:
+    <<: *executor
     steps:
+      - checkout
       - run:
-          name: Check node version
-          command: node -v
+          name: Create new file for rollback_api
+          command: |
+            mkdir api
+            echo "API" > ~/api/text
+      - persist_to_workspace:
+          root: .
+          paths:
+            - api
+  deploy_ext:
+    <<: *executor
+    steps:
+      - checkout
+      - run:
+          name: Create new file for rollback_ext
+          command: |
+            mkdir ext
+            echo "EXT" > ~/ext/text
+      - persist_to_workspace:
+          root: .
+          paths:
+            - ext
+  approval_for_rollback:
+    <<: *executor
+    steps:
+      - run: echo "Let's do rollback"
+  rollback_api:
+    <<: *executor
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Test the workspace inside
+          command: |
+            ls
+  rollback_ext:
+    <<: *executor
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Test the workspace inside
+          command: |
+            ls
 workflows:
   version: 2
   my-workflow:
     jobs:
-      - myjob
+      - deploy_api
+      - deploy_ext
+      - approval_for_rollback:
+          requires:
+            - deploy_api
+            - deploy_ext
+      - rollback_api:
+          requires:
+            - approval_for_rollback
+      - rollback_ext:
+          requires:
+            - approval_for_rollback
