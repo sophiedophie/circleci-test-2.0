@@ -13,7 +13,7 @@ jobs:
           name: Create new file for rollback_api
           command: |
             mkdir api
-            echo "API" > ~/api/text
+            echo "API" > ~/api/text.md
       - persist_to_workspace:
           root: .
           paths:
@@ -26,7 +26,7 @@ jobs:
           name: Create new file for rollback_ext
           command: |
             mkdir ext
-            echo "EXT" > ~/ext/text
+            echo "EXT" > ~/ext/text.md
       - persist_to_workspace:
           root: .
           paths:
