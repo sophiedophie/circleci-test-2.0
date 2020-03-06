@@ -60,6 +60,7 @@ workflows:
       - deploy_api
       - deploy_ext
       - approval_for_rollback:
+          type: approval
           requires:
             - deploy_api
             - deploy_ext
