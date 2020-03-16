@@ -1,17 +1,24 @@
 version: 2.1
-orbs:
-  win: circleci/windows@1.0.0
+
+myexecutor: &executor
+  docker:
+    - image: circleci/node:latest
+
 jobs:
-  build:
-    executor:
-      name: win/vs2019
-      shell: powershell.exe
-    environment:
-      GO111MODULE: \"on\"
+  test:
+    <<: *executor
+    parallelism: 2
     steps:
       - checkout
-      - run: echo "bash?"
+      - run:
+          name: Glob all test in this repo
+          command: |
+            export TEST_FILES=${circleci tests glob './' | circleci tests split}
+            echo ${TEST_FILES}
+            npm run echo
+
 workflows:
-  workflow:
+  version: 2
+  my-workflow:
     jobs:
-      - build
+      - test
