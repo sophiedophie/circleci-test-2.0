@@ -19,6 +19,14 @@ jobs:
 
 workflows:
   version: 2
-  my-workflow:
+  nightly:
+    triggers:
+      - schedule:
+          cron: "30 * * * *"
+          filters:
+            branches:
+              only:
+                - master
+
     jobs:
       - test
