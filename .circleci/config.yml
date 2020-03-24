@@ -1,32 +1,14 @@
 version: 2.1
-
-myexecutor: &executor
-  docker:
-    - image: circleci/node:latest
-
-jobs:
-  test:
-    <<: *executor
-    parallelism: 2
-    steps:
-      - checkout
-      - run:
-          name: Glob all test in this repo
-          command: |
-            export TEST_FILES=$(circleci tests glob './' | circleci tests split)
-            echo ${TEST_FILES}
-            npm run echo
+orbs:
+  aws-ecr: circleci/aws-ecr@0.0.2
 
 workflows:
-  version: 2
-  nightly:
-    triggers:
-      - schedule:
-          cron: "30 * * * *"
-          filters:
-            branches:
-              only:
-                - master
-
+  build_and_push_image:
     jobs:
-      - test
+      - aws-ecr/build_and_push_image:
+          account-url: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
+          aws-access-key-id: AWS_ACCESS_KEY_ID
+          aws-secret-access-key: AWS_SECRET_ACCESS_KEY
+          region: AWS_DEFAULT_REGION
+          repo: AWS_RESOURCE_NAME_PREFIX
+          tag: CIRCLE_SHA1
