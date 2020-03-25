@@ -1,15 +1,14 @@
 version: 2.1
-orbs:
-  aws-ecr: circleci/aws-ecr@0.0.2
-
+jobs:
+  build:
+    docker:
+      - image: circleci/node:12.13.1
+        environment:
+          NODE_OPTIONS: --max_old_space_size=4096
+      - image: microsoft/dotnet:2-sdk
+    steps:
+      - run: echo "hello world"
 workflows:
   build_and_push_image:
     jobs:
-      - aws-ecr/build_and_push_image:
-          context: aws
-          account-url: "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com"
-          aws-access-key-id: ${AWS_ACCESS_KEY_ID}
-          aws-secret-access-key: ${AWS_SECRET_ACCESS_KEY}
-          region: ${AWS_DEFAULT_REGION}
-          repo: ${AWS_RESOURCE_NAME_PREFIX}
-          tag: ${CIRCLE_SHA1}
+      - build
