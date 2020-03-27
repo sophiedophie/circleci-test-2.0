@@ -13,10 +13,7 @@ jobs:
           name: check cache path
           command: |
             CACHE_DIR="~/projectPath"
-            if [ ! -d "$CACHE_DIR" ]; then
-              echo "It means there is cache restored"
-              exit 1 # finish build
-            fi
+            [ -d "$CACHE_DIR" ]
       - run:
           name: check when
           command: echo "hello world"
