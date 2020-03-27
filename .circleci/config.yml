@@ -1,24 +1,24 @@
 version: 2.1
 
 jobs:
-  build:
-    working_directory: ~/code
-    docker:
-      - image: circleci/android:api-29
-    environment:
-      - GRADLE_OPTS: -Xmx3g -Dkotlin.compiler.execution.strategy=in-process
-    resource_class: large
+  restore_cache_build:
     steps:
-      - checkout
+      - restore_cache:
+          key: source-v1--
+      # if cache successfully restored, then there would be path
       - run:
-          name: Set environment variable to export
+          name: check cache path
           command: |
-            echo 'export FIREBASE_TOKEN="${FIREBASE_TOKEN}"' >> $BASH_ENV
+            CACHE_DIR="~/projectPath"
+            if [ -d "$CACHE_DIR" ]; then
+              echo "It means there is cache restored"
+              exit 1 # finish build
+            fi
       - run:
-          name: Release patient to Internal
-          command: ./gradlew -PdisablePreDex -Pandroid.useAndroidX=true -Pandroid.enableJetifier=true clean patient:appDistributionUploadInternalRelease --no-daemon --max-workers 3
-
+          name: check when
+          command: echo "hello world"
+          when: on_success
 workflows:
   start_build:
     jobs:
-      - build
+      - restore_cache_build
