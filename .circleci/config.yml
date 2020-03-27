@@ -13,7 +13,7 @@ jobs:
           name: check cache path
           command: |
             CACHE_DIR="~/projectPath"
-            echo ([ -d "$CACHE_DIR" ])
+            [ ! -d "$CACHE_DIR" ]
       - run:
           name: check when
           command: |
