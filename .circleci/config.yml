@@ -2,7 +2,10 @@ version: 2.1
 
 jobs:
   restore_cache_build:
+    docker:
+      - image: circleci/node:latest
     steps:
+      - checkout
       - restore_cache:
           key: source-v1--
       # if cache successfully restored, then there would be path
