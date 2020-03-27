@@ -1,27 +1,24 @@
 version: 2.1
+
 jobs:
   build:
-    macos:
-      xcode: 11.3.0
+    working_directory: ~/code
+    docker:
+      - image: circleci/android:api-29
+    environment:
+      - GRADLE_OPTS: -Xmx3g -Dkotlin.compiler.execution.strategy=in-process
+    resource_class: large
     steps:
-    - checkout
-    - run:
-        name: Download latest Media framework
-        command: |
-          mkdir -p media
-          curl https://amazon-chime-sdk.s3.amazonaws.com/ios/amazon-chime-sdk-media/latest/AmazonChimeSDKMedia.tar.gz -o media/AmazonChimeSDKMedia.tar.gz
-          tar -xvzf media/AmazonChimeSDKMedia.tar.gz -C media
-          cp -R media/AmazonChimeSDKMedia.framework AmazonChimeSDK/
-    - run:
-        name: Run unit test
-        command: xcodebuild -project AmazonChimeSDK/AmazonChimeSDK.xcodeproj -scheme AmazonChimeSDKTests -destination 'platform=iOS Simulator,name=iPhone 11,OS=13.3' test
-    - run:
-        name: Build SDK
-        command: xcodebuild -project AmazonChimeSDK/AmazonChimeSDK.xcodeproj build
-    - store_artifacts:
-        path: build
+      - checkout
+      - run:
+          name: Set environment variable to export
+          command: |
+            echo 'export FIREBASE_TOKEN="${FIREBASE_TOKEN}"' >> $BASH_ENV
+      - run:
+          name: Release patient to Internal
+          command: ./gradlew -PdisablePreDex -Pandroid.useAndroidX=true -Pandroid.enableJetifier=true clean patient:appDistributionUploadInternalRelease --no-daemon --max-workers 3
+
 workflows:
-  version: 2
-  workflow:
+  start_build:
     jobs:
-    - build
+      - build
