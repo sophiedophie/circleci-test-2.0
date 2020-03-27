@@ -13,11 +13,13 @@ jobs:
           name: check cache path
           command: |
             CACHE_DIR="~/projectPath"
-            [ -d "$CACHE_DIR" ]
+            [ -d "$CACHE_DIR" ] | true
       - run:
           name: check when
-          command: echo "hello world"
-          when: on_success
+          command: |
+            if [ $? == 1 ]; then
+              echo "hello world"
+            fi
 workflows:
   start_build:
     jobs:
