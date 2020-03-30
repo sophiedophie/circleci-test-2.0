@@ -1,26 +1,61 @@
 version: 2.1
 
 jobs:
-  restore_cache_build:
-    docker:
-      - image: circleci/node:latest
+  win:
+    machine:
+      image: windows-server-2019-vs2019:stable
+    environment:
+    - CONFIGURE_ARGS: -DOQS_USE_OPENSSL=OFF
+    - SKIP_TESTS: style
     steps:
-      - checkout
-      - restore_cache:
-          key: source-v1--
-      # if cache successfully restored, then there would be path
-      - run:
-          name: check cache path
-          command: |
-            CACHE_DIR="~/projectPath"
-            [ ! -d "$CACHE_DIR" ]
-      - run:
-          name: check when
-          command: |
-            if [ $? == 1 ]; then
-              echo "hello world"
-            fi
+    - run:
+        name: Set VCVars
+        command: cd "C:\Program Files (x86)" & dir
+        shell: cmd.exe
+    - run:
+        name: Set VCVars
+        command: dir "C:\Program Files (x86)"
+        shell: cmd.exe
+    - run:
+        name: Set VCVars
+        command: call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
+        shell: cmd.exe
+    - run:
+        name: Set VCVars
+        command: call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat"
+        shell: cmd.exe
+    - run:
+        name: Install cmake
+        command: $ProgressPreference="SilentlyContinue" ; Invoke-RestMethod -Uri https://github.com/Kitware/CMake/releases/download/v3.17.0/cmake-3.17.0-win64-x64.zip -Method Get -OutFile cmake.zip; Expand-Archive cmake.zip
+        shell: powershell.exe
+    - run:
+        name: Install ninja
+        command: $ProgressPreference="SilentlyContinue" ; Invoke-RestMethod -Uri https://github.com/ninja-build/ninja/releases/download/v1.10.0/ninja-win.zip -Method Get -OutFile ninja.zip; Expand-Archive ninja.zip
+        shell: powershell.exe
+    - run:
+        name: Install dependencies
+        command: |
+          scripts/git_no_checkin_in_last_day.sh || (
+          pip install pytest pytest-xdist
+          )
+        shell: bash.exe
+    - run:
+        name: Configure & Build
+        command: call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat" & PATH=%PATH%;C:\Users\circleci\project\ninja & echo %PATH% & mkdir build & cd build & cmake -GNinja ${CONFIGURE_ARGS} .. & ninja
+        shell: cmd.exe
+    - run:
+        name: Run tests
+        command: $env:Path += ";C:\Users\circleci\project\ninja;C:\Users\circleci\project\cmake\cmake-3.17.0-win64-x64\bin"; ninja run_tests
+        working_directory: build
+        shell: powershell.exe
+    - store_test_results:
+        path: build/test-results
+    - store_artifacts:
+        path: build/test-results
+    resource_class: windows.medium
+    shell: powershell.exe -ExecutionPolicy Bypass
+
 workflows:
-  start_build:
+  windows-test:
     jobs:
-      - restore_cache_build
+      - win
