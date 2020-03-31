@@ -8,7 +8,15 @@ jobs:
     - run:
         name: install node version 10
         command: |
-          apk add 'nodejs>10.19.0-alpine3.9'
+          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
+          echo 'export NVM_DIR="$HOME/.nvm"' >> $BASH_ENV
+          echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'  >> $BASH_ENV
+          echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"' >> $BASH_ENV  # This loads nvm bash_completion
+          source $BASH_ENV
+          nvm install 10.18.0
+          nvm alias default 10.18.0
+          node -v
+          which node
     - run:
         name: Check node
         command: node -v
