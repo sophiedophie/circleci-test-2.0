@@ -1,25 +1,17 @@
 version: 2.1
 jobs:
   build:
-    macos:
-      xcode: 11.3.0
+    docker:
+    - image: google/cloud-sdk:alpine
     steps:
     - checkout
     - run:
-        name: Download latest Media framework
+        name: install node version 10
         command: |
-          mkdir -p media
-          curl https://amazon-chime-sdk.s3.amazonaws.com/ios/amazon-chime-sdk-media/latest/AmazonChimeSDKMedia.tar.gz -o media/AmazonChimeSDKMedia.tar.gz
-          tar -xvzf media/AmazonChimeSDKMedia.tar.gz -C media
-          cp -R media/AmazonChimeSDKMedia.framework AmazonChimeSDK/
+          apk add nodejs --update-cache --repository https://deb.nodesource.com/setup_10.x --allow-untrusted
     - run:
-        name: Run unit test
-        command: xcodebuild -project AmazonChimeSDK/AmazonChimeSDK.xcodeproj -scheme AmazonChimeSDKTests -destination 'platform=iOS Simulator,name=iPhone 11,OS=13.3' test
-    - run:
-        name: Build SDK
-        command: xcodebuild -project AmazonChimeSDK/AmazonChimeSDK.xcodeproj build
-    - store_artifacts:
-        path: build
+        name: Check node version
+        command: node -v
 workflows:
   version: 2
   workflow:
