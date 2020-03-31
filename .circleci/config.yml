@@ -8,9 +8,9 @@ jobs:
     - run:
         name: install node version 10
         command: |
-          apk add 'nodejs<10.18.0'
+          apk add 'nodejs=10.19.0-alpine3.9'
     - run:
-        name: Check node version
+        name: Check node
         command: node -v
 workflows:
   version: 2
