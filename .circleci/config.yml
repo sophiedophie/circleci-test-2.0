@@ -13,13 +13,13 @@ jobs:
           echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'  >> $BASH_ENV
           echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"' >> $BASH_ENV  # This loads nvm bash_completion
           source $BASH_ENV
+    - run:
+        name: Check node
+        command: |
           nvm install 10.18.0
           nvm alias default 10.18.0
           node -v
           which node
-    - run:
-        name: Check node
-        command: node -v
 workflows:
   version: 2
   workflow:
