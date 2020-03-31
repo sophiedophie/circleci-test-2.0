@@ -5,7 +5,7 @@ jobs:
     - image: google/cloud-sdk:alpine
     steps:
     - checkout
-    - run: apk add --no-cache libstdc++ gcc-multilib
+    - run: apk add --no-cache libstdc++ libgcc
     - run:
         name: install node version 10
         command: |
