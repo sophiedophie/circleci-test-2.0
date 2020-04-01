@@ -21,9 +21,6 @@ jobs:
         name: Check node
         command: |
           nvm install 10.19.0
-          nvm alias default 10.19.0
-          node -v
-          which node
 workflows:
   version: 2
   workflow:
