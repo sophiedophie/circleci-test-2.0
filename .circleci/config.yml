@@ -5,19 +5,15 @@ jobs:
     - image: google/cloud-sdk:alpine
     steps:
     - checkout
-    # - run: apk add --no-cache libstdc++ libc6-compat gcompat
-    # - run: apk add libgcc
-    # - run: apk info -vv | sort
-    # - run:
-    #     name: install node version 10
-    #     command: |
-    #       curl "http://nodejs.org/dist/v10.19.0/node-v10.19.0.pkg" > "$HOME/node-latest.pkg" && sudo installer -store -pkg "$HOME/node-latest.pkg" -target "/"
+    - run:
+        name: install node version 10
+        command: |
+          curl -sL https://deb.nodesource.com/setup_10.19.0 -o nodesource_setup.sh
 
     - run:
         name: Check node
         command: |
-          # node -v
-          lsb_release -a
+          sudo bash nodesource_setup.sh
 workflows:
   version: 2
   workflow:
