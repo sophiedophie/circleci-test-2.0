@@ -5,7 +5,7 @@ jobs:
     - image: google/cloud-sdk:alpine
     steps:
     - checkout
-    - run: apk add --no-cache libstdc++ libc6-compat　gcompat
+    - run: apk add --no-cache libstdc++ libc6-compat gcompat
     - run: apk add libgcc
     - run: apk info -vv | sort
     - run:
