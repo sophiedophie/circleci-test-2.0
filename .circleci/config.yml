@@ -5,23 +5,21 @@ jobs:
     - image: google/cloud-sdk:alpine
     steps:
     - checkout
-    - run: apk add --no-cache libstdc++ libc6-compat gcompat
-    - run: apk add libgcc
-    - run: apk info -vv | sort
+    # - run: apk add --no-cache libstdc++ libc6-compat gcompat
+    # - run: apk add libgcc
+    # - run: apk info -vv | sort
     - run:
         name: install node version 10
         command: |
-          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.34.0/install.sh | bash
-          echo 'export NVM_DIR="$HOME/.nvm"' >> $BASH_ENV
-          echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"'  >> $BASH_ENV
-          echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"' >> $BASH_ENV  # This loads nvm bash_completion
-          source $BASH_ENV
+          curl "http://nodejs.org/dist/v10.19.0/node-v10.19.0.pkg" > "$HOME/Downloads/node-latest.pkg" && sudo installer -store -pkg "$HOME/Downloads/node-latest.pkg" -target "/"
+
     - run:
         name: Check node
         command: |
-          nvm install 10.19.0
+          node -v
 workflows:
   version: 2
   workflow:
     jobs:
     - build
+
