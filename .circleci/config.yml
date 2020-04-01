@@ -8,10 +8,10 @@ jobs:
     # - run: apk add --no-cache libstdc++ libc6-compat gcompat
     # - run: apk add libgcc
     # - run: apk info -vv | sort
-    - run:
-        name: install node version 10
-        command: |
-          curl "http://nodejs.org/dist/v10.19.0/node-v10.19.0.pkg" > "$HOME/node-latest.pkg" && sudo installer -store -pkg "$HOME/node-latest.pkg" -target "/"
+    # - run:
+    #     name: install node version 10
+    #     command: |
+    #       curl "http://nodejs.org/dist/v10.19.0/node-v10.19.0.pkg" > "$HOME/node-latest.pkg" && sudo installer -store -pkg "$HOME/node-latest.pkg" -target "/"
 
     - run:
         name: Check node
