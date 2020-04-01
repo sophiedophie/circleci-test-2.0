@@ -17,6 +17,7 @@ jobs:
         name: Check node
         command: |
           node -v
+          lsb_release -a
 workflows:
   version: 2
   workflow:
