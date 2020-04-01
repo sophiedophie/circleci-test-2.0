@@ -8,6 +8,7 @@ jobs:
     - run: apk add libc6-compat
     - run: apk add libstdc++
     - run: apk add libgcc
+    - run: apk info -vv | sort
     - run:
         name: install node version 10
         command: |
