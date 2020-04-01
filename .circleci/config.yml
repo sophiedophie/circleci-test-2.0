@@ -5,14 +5,9 @@ jobs:
     - image: google/cloud-sdk:alpine
     steps:
     - checkout
-    - run:
-        name: library
-        command: |
-          apk update \
-          && apk add --update --no-cache \
-            libstdc++ \
-            libc6-compat \
-            libgcc \
+    - run: apk add libc6-compat
+    - run: apk add libstdc++
+    - run: apk add libgcc
     - run:
         name: install node version 10
         command: |
