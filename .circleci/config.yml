@@ -1,19 +1,14 @@
 version: 2.1
 jobs:
   build:
-    docker:
-    - image: google/cloud-sdk:alpine
+    machine:
+    - image: circleci/classic:edge
     steps:
     - checkout
     - run:
-        name: install node version 10
+        name: pyenv version
         command: |
-          curl -sL https://deb.nodesource.com/setup_10.19.0 -o nodesource_setup.sh
-
-    - run:
-        name: Check node
-        command: |
-          sudo bash nodesource_setup.sh
+          pyenv version
 workflows:
   version: 2
   workflow:
