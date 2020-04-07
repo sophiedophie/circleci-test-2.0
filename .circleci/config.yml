@@ -1,17 +1,300 @@
 version: 2.1
+
+orbs:
+  slack: circleci/slack@3.4.2
+  cypress: cypress-io/cypress@1.19.1
+
+commands:
+  notify-slack-of-failure:
+    steps:
+      - slack/status:
+          fail_only: true
+          channel: dev
+          mentions: 'here'
+          failure_message: '<< pipeline.git.branch >> branch: $CIRCLE_JOB job has failed!'
+          only_for_branches: master,develop,release/*
+          webhook: $SLACK_WEBHOOK_URL_DEVELOPMENT
+
+executors:
+  cimg-small-cc-test-reporter:
+    docker:
+      - image: cimg/base:2020.01
+    resource_class: small
+    working_directory: ~/tmp/
+  core-rails-api:
+    docker:
+      - image: circleci/ruby:2.6.5-node-browsers
+        environment:
+          RAILS_ENV: test
+          PGHOST: 127.0.0.1
+          PGUSER: root
+          LOCAL_TEST_DB_NAME: circle-ci_test
+          DATABASE_URL: 'postgres://root@localhost:5432/circle-ci_test'
+      - image: circleci/postgres:9.6.6
+        environment:
+          POSTGRES_USER: root
+          POSTGRES_DB: circle-ci_test
+    resource_class: small
+    working_directory: ~/careerjsm-code/packages/core-rails-api
+
 jobs:
-  build:
-    machine:
-      image: circleci/classic:edge
+  download-cc-test-reporter:
+    executor: cimg-small-cc-test-reporter
+    steps:
+      - run:
+          name: Download cc-test-reporter
+          command: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 --fail > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+            ./cc-test-reporter -h
+      - persist_to_workspace:
+          root: .
+          paths:
+            - cc-test-reporter
+
+  core-rails-api-build:
+    docker:
+      - image: circleci/ruby:2.6.5-node
+    resource_class: small
+    working_directory: ~/careerjsm-code/packages/core-rails-api/
+    steps:
+      - checkout:
+          path: ~/careerjsm-code/
+      - run: yarn run setup:bundler
+      - restore_cache:
+          keys:
+            - core-rails-api-{{ arch }}-{{ checksum "./Gemfile.lock" }}-{{ .Branch }}
+            - core-rails-api-{{ arch }}-{{ checksum "./Gemfile.lock" }}-master
+            - core-rails-api-{{ arch }}-{{ checksum "./Gemfile.lock" }}-
+            - core-rails-api-{{ arch }}-
+      - run: yarn run setup
+      - run: yarn run test:security
+      - run: yarn run clean
+      - save_cache:
+          key: core-rails-api-{{ arch }}-{{ checksum "./Gemfile.lock" }}-{{ .Branch }}
+          paths:
+            - ./vendor/bundle
+      - restore_cache:
+          keys:
+            - v1-rubocop-cache-{{ checksum "./.rubocop.yml" }}-{{ .Branch }}
+            - v1-rubocop-cache-{{ checksum "./.rubocop.yml" }}-master
+            - v1-rubocop-cache-{{ checksum "./.rubocop.yml" }}
+            - v1-rubocop-cache-
+      - run: yarn run test:brakeman
+      - run: yarn run test:rubocop
+      - save_cache:
+          key: v1-rubocop-cache-{{ checksum "./.rubocop.yml" }}-{{ .Branch }}-{{ epoch }}
+          paths:
+            - ~/.cache/rubocop_cache
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+      - notify-slack-of-failure
+
+  core-rails-api-test:
+    executor: core-rails-api
+    parallelism: 1
+    steps:
+      - checkout:
+          path: ~/careerjsm-code/
+      - attach_workspace:
+          at: ~/careerjsm-code/packages/core-rails-api
+      - run: yarn run setup:bundler
+      - run: yarn run setup
+      - run: yarn run setup:database
+      - run:
+          name: Run RSpec Tests
+          environment:
+            JOBS: 2
+          command: |
+            TESTFILES=$(circleci tests glob "spec/**/*_spec.rb" | circleci tests split)
+            yarn run test:rspec $TESTFILES
+      - attach_workspace:
+          at: ~/careerjsm-code/tmp
+      - run:
+          working_directory: ~/careerjsm-code/
+          name: Format Coverage Data
+          command: ./tmp/cc-test-reporter format-coverage --debug -t simplecov -o ./tmp/codeclimate.core-rails-api.json ./packages/core-rails-api/coverage/.resultset.json
+      - persist_to_workspace:
+          root: ~/careerjsm-code/tmp
+          paths:
+            - codeclimate.core-rails-api.json
+      - notify-slack-of-failure
+
+  core-rails-api-test-integration:
+    executor: core-rails-api
+    steps:
+      - attach_workspace:
+          at: ~/careerjsm-code/packages/core-rails-api
+      - run: yarn run setup:bundler
+      - run: yarn run setup
+      - run: yarn run setup:database
+      - restore_cache:
+          keys:
+            - dependencies-{{ arch }}-{{ checksum "./package-lock.json" }}-{{ .Branch }}
+            - dependencies-{{ arch }}-{{ checksum "./package-lock.json" }}-master
+            - dependencies-{{ arch }}-{{ checksum "./package-lock.json" }}-
+            - dependencies-{{ arch }}-
+      - run:
+          name: Install Node Modules (work-around for Cypress)
+          command: |
+            npm install
+            if ! npx cypress verify; then npx cypress install; fi
+      - save_cache:
+          key: dependencies-{{ arch }}-{{ checksum "./package-lock.json" }}-{{ .Branch }}
+          paths:
+            - ~/.cache/Cypress
+            - ./node_modules
+      - run:
+          command: yarn start
+          background: true
+      - run: yarn run test:cypress:local --headless
+      - store_artifacts:
+          path: ./cypress/videos/
+          destination: core-rails-api/cypress/videos
+      - store_artifacts:
+          path: ./cypress/screenshots/
+          destination: core-rails-api/cypress/screenshots
+      - notify-slack-of-failure
+
+  node-apps-build-test:
+    resource_class: medium
+    working_directory: ~/careerjsm-code
+    docker:
+      - image: circleci/node:10.18.1-browsers
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - v3.1-deps-{{ .Branch }}-{{ checksum "yarn.lock" }}
+      # currently required due to heroku buildpack bug https://github.com/heroku/semver.io/issues/68
       - run:
-          name: pyenv version
+          name: Install Yarn 1.16.0
           command: |
-            pyenv version
-            pyenv install --list
+            curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 1.16.0
+            echo 'export PATH="$HOME/.yarn/bin:$HOME/.config/yarn/global/node_modules/.bin:$PATH"' >> $BASH_ENV
+            source /home/circleci/.bashrc
+      - run:
+          name: Install Monorepo packages
+          command: |
+            node ./scripts/set-npmrc.js
+            yarn install --non-interactive --frozen-lockfile
+      - run: yarn run lerna bootstrap
+      - save_cache:
+          key: v3.1-deps-{{ .Branch }}-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache/yarn
+            - ./node_modules
+            - ./bower_components
+            - ./packages/chrome-extension/node_modules
+            - ./packages/ember-careerjsm/node_modules
+            - ./packages/hub-ember-ui/bower_components
+            - ./packages/hub-ember-ui/node_modules
+            - ./packages/jsm-ember-ui/bower_components
+            - ./packages/jsm-ember-ui/node_modules
+            - ./packages/tenant-ember-ui/node_modules
+      - run: echo 'export PATH=~/careerjsm-code/node_modules/.bin:$PATH' >> $BASH_ENV
+      - run: yarn run lint:css
+      - run: yarn run lint:js
+      - run: yarn run lerna run lint:js --stream --ignore core-rails-api
+      - run: yarn run lerna run lint:hbs --stream --ignore core-rails-api --ignore chrome-extension
+      - run:
+          environment:
+            JOBS: 2 # https://github.com/termux/termux-packages/issues/1855
+          command: yarn run lerna run test --stream --ignore core-rails-api
+      - attach_workspace:
+          at: ~/careerjsm-code/tmp
+      - run:
+          name: Format Chrome Extension Coverage Data
+          command: |
+            ./tmp/cc-test-reporter format-coverage --debug -t lcov -o ./tmp/codeclimate.chrome-extension.json -p /home/circleci/careerjsm-code ./packages/chrome-extension/coverage/lcov.info
+      - run:
+          name: Format Ember CareerJSM Coverage Data
+          command: |
+            sed -i -e 's/SF:/SF:packages\/ember-careerjsm\//g' ./packages/ember-careerjsm/coverage/lcov.info
+            ./tmp/cc-test-reporter format-coverage --debug -t lcov -o ./tmp/codeclimate.ember-careerjsm.json -p /home/circleci/careerjsm-code ./packages/ember-careerjsm/coverage/lcov.info
+      - run:
+          name: Format HUB Coverage Data
+          command: |
+            sed -i -e 's/SF:/SF:packages\/hub-ember-ui\//g' ./packages/hub-ember-ui/coverage/lcov.info
+            ./tmp/cc-test-reporter format-coverage --debug -t lcov -o ./tmp/codeclimate.hub-ember-ui.json -p /home/circleci/careerjsm-code ./packages/hub-ember-ui/coverage/lcov.info
+      - run:
+          name: Format JSM Coverage Data
+          command: |
+            sed -i -e 's/SF:/SF:packages\/jsm-ember-ui\//g' ./packages/jsm-ember-ui/coverage/lcov.info
+            ./tmp/cc-test-reporter format-coverage --debug -t lcov -o ./tmp/codeclimate.jsm-ember-ui.json -p /home/circleci/careerjsm-code ./packages/jsm-ember-ui/coverage/lcov.info
+      - run:
+          name: Format Tenant Coverage Data
+          command: |
+            sed -i -e 's/SF:/SF:packages\/tenant-ember-ui\//g' ./packages/tenant-ember-ui/coverage/lcov.info
+            ./tmp/cc-test-reporter format-coverage --debug -t lcov -o ./tmp/codeclimate.tenant-ember-ui.json -p /home/circleci/careerjsm-code ./packages/tenant-ember-ui/coverage/lcov.info
+      - persist_to_workspace:
+          root: tmp
+          paths:
+            - codeclimate.chrome-extension.json
+            - codeclimate.ember-careerjsm.json
+            - codeclimate.hub-ember-ui.json
+            - codeclimate.jsm-ember-ui.json
+            - codeclimate.tenant-ember-ui.json
+      - notify-slack-of-failure
+
+  send-code-coverage:
+    executor: cimg-small-cc-test-reporter
+    steps:
+      - attach_workspace:
+          at: ~/careerjsm-code/tmp
+      - run:
+          name: Send to CodeClimate
+          working_directory: ~/careerjsm-code/tmp
+          command: |
+            ./cc-test-reporter sum-coverage codeclimate.*.json -o codeclimate.total.json
+            ./cc-test-reporter upload-coverage -i codeclimate.total.json
+
 workflows:
   version: 2
-  workflow:
+
+  build-and-test:
+    when: false
     jobs:
-    - build
+      - download-cc-test-reporter
+      - node-apps-build-test:
+          requires:
+            - download-cc-test-reporter
+      - core-rails-api-build
+      - core-rails-api-test:
+          requires:
+            - download-cc-test-reporter
+            - core-rails-api-build
+      - core-rails-api-test-integration:
+          requires:
+            - core-rails-api-build
+      - send-code-coverage:
+          requires:
+            - node-apps-build-test
+            - core-rails-api-test
+
+  test-acceptance-post-deploy:
+    triggers:
+      - schedule:
+          cron: '* * * * *'
+    jobs:
+      - cypress/run:
+          name: jsm-ember-ui-test-acceptance-post-deploy
+          executor: cypress/base-12-6-0
+          working_directory: packages/jsm-ember-ui
+          yarn: true
+          wait-on: https://staging.thrivemycareer.com/
+          command: |
+            yarn cypress:mute-container-volume
+            yarn test:cypress:staging --env THRIVE_LOGIN_USERNAME="$THRIVE_LOGIN_USERNAME_STAGING",THRIVE_LOGIN_PASSWORD="$THRIVE_LOGIN_PASSWORD_STAGING",THRIVE_ADMIN_USERNAME="$THRIVE_ADMIN_USERNAME_STAGING",THRIVE_ADMIN_PASSWORD="$THRIVE_ADMIN_PASSWORD_STAGING",THRIVE_METRICS_USERNAME="$THRIVE_METRICS_USERNAME_STAGING",THRIVE_METRICS_PASSWORD="$THRIVE_METRICS_PASSWORD_STAGING"
+          no-workspace: true
+          post-steps:
+            - store_artifacts:
+                path: ~/project/packages/jsm-ember-ui/cypress/videos/
+                destination: jsm-ember-ui/cypress/videos
+            - store_artifacts:
+                path: ~/project/packages/jsm-ember-ui/cypress/screenshots/
+                destination: jsm-ember-ui/cypress/screenshots
+            - store_test_results:
+                path: ~/project/packages/jsm-ember-ui/cypress/results
