@@ -9,6 +9,7 @@ jobs:
           name: pyenv version
           command: |
             pyenv version
+            pyenv install --list
 workflows:
   version: 2
   workflow:
