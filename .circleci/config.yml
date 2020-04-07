@@ -2,16 +2,15 @@ version: 2.1
 jobs:
   build:
     machine:
-    - image: circleci/classic:edge
+      image: circleci/classic:edge
     steps:
-    - checkout
-    - run:
-        name: pyenv version
-        command: |
-          pyenv version
+      - checkout
+      - run:
+          name: pyenv version
+          command: |
+            pyenv version
 workflows:
   version: 2
   workflow:
     jobs:
     - build
-
