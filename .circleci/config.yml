@@ -277,11 +277,14 @@ workflows:
   test-acceptance-post-deploy:
     triggers:
       - schedule:
-          cron: '* * * * *'
+          cron: '30 * * * *'
           filters:
              branches:
                only:
-                 - master
+                - /release\/.*/
+                - feature/change-acceptance-tests-to-cron
+                - /feature\/.*/
+                - /.*/
     jobs:
       - cypress/run:
           name: jsm-ember-ui-test-acceptance-post-deploy
