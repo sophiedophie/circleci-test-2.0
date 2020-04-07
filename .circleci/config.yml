@@ -278,6 +278,10 @@ workflows:
     triggers:
       - schedule:
           cron: '* * * * *'
+          filters:
+             branches:
+               only:
+                 - master
     jobs:
       - cypress/run:
           name: jsm-ember-ui-test-acceptance-post-deploy
